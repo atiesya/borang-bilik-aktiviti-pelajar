@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rekod Tempahan Bilik</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f6f6f6;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 800px;
+      width: 95%;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 22px;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    th {
+      background: #eee;
+    }
+
+    .occupied {
+      color: red;
+      font-weight: bold;
+    }
+
+    .cancel-btn {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .cancel-btn:hover {
+      background-color: #c82333;
+    }
+
+    @media (max-width: 480px) {
+      h2 {
+        font-size: 20px;
+      }
+
+      th, td {
+        font-size: 13px;
+        padding: 8px;
+      }
+
+      .cancel-btn {
+        font-size: 12px;
+        padding: 4px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Rekod Tempahan Bilik</h2>
+
+    <div class="table-responsive">
+      <table id="bookingTable">
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>Tarikh</th>
+            <th>Masuk</th>
+            <th>Tamat</th>
+            <th>Status</th>
+            <th>Tindakan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Rekod 'Occupied' akan dimasukkan di sini -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function loadOccupiedBookings() {
+      let bookings = [];
+
+      try {
+        bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+        if (!Array.isArray(bookings)) throw new Error("Format salah");
+      } catch (err) {
+        console.error("Data tempahan rosak:", err);
+        bookings = [];
+      }
+
+      // Susun ikut tarikh & masa naik
+      bookings.sort((a, b) => {
+        const dateTimeA = new Date(`${a.date}T${a.start}`);
+        const dateTimeB = new Date(`${b.date}T${b.start}`);
+        return dateTimeA - dateTimeB;
+      });
+
+      const table = document.getElementById('bookingTable').querySelector('tbody');
+      table.innerHTML = '';
+
+      bookings.forEach((b, index) => {
+        if (b.status === 'Occupied') {
+          const row = table.insertRow();
+          row.innerHTML = `
+            <td>${b.name}</td>
+            <td>${b.date}</td>
+            <td>${b.start}</td>
+            <td>${b.end}</td>
+            <td class="occupied">${b.status}</td>
+            <td><button class="cancel-btn" onclick="cancelBooking(${index})">Batalkan</button></td>
+          `;
+        }
+      });
+    }
+
+    function cancelBooking(index) {
+      let bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+
+      if (confirm("Anda pasti mahu batalkan tempahan ini?")) {
+        // Padamkan tempahan berdasarkan index
+        bookings.splice(index, 1);
+        localStorage.setItem('bookings', JSON.stringify(bookings));
+        loadOccupiedBookings(); // Refresh table
+      }
+    }
+
+    window.onload = loadOccupiedBookings;
+  </script>
+</body>
+</html>

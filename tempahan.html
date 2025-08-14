@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Borang Tempahan Bilik</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f6f6f6;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 500px;
+      width: 95%;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 22px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      width: 100%;
+      background: #28a745;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #218838;
+    }
+
+    #statusText {
+      margin-top: 15px;
+      font-weight: bold;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .available {
+      color: green;
+    }
+
+    .occupied {
+      color: red;
+    }
+
+    @media (max-width: 480px) {
+      h2 {
+        font-size: 20px;
+      }
+
+      input, button {
+        font-size: 14px;
+      }
+
+      #statusText {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Borang Tempahan Bilik</h2>
+    <form id="bookingForm">
+      <label>Nama:</label>
+      <input type="text" id="name" required />
+
+      <label>Tarikh:</label>
+      <input type="date" id="date" required />
+
+      <label>Masa Masuk:</label>
+      <input type="time" id="start" required />
+
+      <label>Masa Tamat:</label>
+      <input type="time" id="end" required />
+
+      <button type="submit">Hantar Tempahan</button>
+    </form>
+
+    <div id="statusText"></div>
+  </div>
+
+  <script>
+    const nameInput = document.getElementById('name');
+    const dateInput = document.getElementById('date');
+    const startInput = document.getElementById('start');
+    const endInput = document.getElementById('end');
+    const statusText = document.getElementById('statusText');
+
+    function checkAvailability() {
+      const date = dateInput.value;
+      const start = startInput.value;
+      const end = endInput.value;
+
+      if (!date || !start || !end) {
+        statusText.textContent = '';
+        statusText.className = '';
+        return;
+      }
+
+      if (start >= end) {
+        statusText.textContent = 'Masa tamat mesti selepas masa masuk.';
+        statusText.className = 'occupied';
+        return;
+      }
+
+      const bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+
+      const isClashing = bookings.some(b =>
+        b.date === date &&
+        (
+          (start >= b.start && start < b.end) ||
+          (end > b.start && end <= b.end) ||
+          (start <= b.start && end >= b.end)
+        )
+      );
+
+      if (isClashing) {
+        statusText.textContent = 'Occupied';
+        statusText.className = 'occupied';
+      } else {
+        statusText.textContent = 'Available';
+        statusText.className = 'available';
+      }
+    }
+
+    dateInput.addEventListener('input', checkAvailability);
+    startInput.addEventListener('input', checkAvailability);
+    endInput.addEventListener('input', checkAvailability);
+
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = nameInput.value.trim();
+      const date = dateInput.value;
+      const start = startInput.value;
+      const end = endInput.value;
+
+      if (start >= end) {
+        alert('Masa tamat mesti selepas masa masuk.');
+        return;
+      }
+
+      const bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+
+      const isClashing = bookings.some(b =>
+        b.date === date &&
+        (
+          (start >= b.start && start < b.end) ||
+          (end > b.start && end <= b.end) ||
+          (start <= b.start && end >= b.end)
+        )
+      );
+
+      if (isClashing) {
+        alert('Maaf, tempahan pada waktu ini telah ditempah. Sila pilih waktu lain.');
+        return;
+      }
+
+      bookings.push({ name, date, start, end, status: 'Occupied' });
+      localStorage.setItem('bookings', JSON.stringify(bookings));
+
+      this.reset();
+      statusText.textContent = '';
+      statusText.className = '';
+    });
+  </script>
+</body>
+</html>

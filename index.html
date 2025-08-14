@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />  <!-- PENTING untuk responsive -->
+  <title>Bilik Aktiviti Pelajar</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f6f6f6;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 600px;
+      margin: 20px auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+    }
+    img.header-image {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 0 auto 20px auto;
+      border-radius: 10px;
+    }
+    button {
+      margin: 10px 0;
+      padding: 10px;
+      width: 100%;
+      background: #007BFF;
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    #statusText {
+      display: none; /* Sembunyikan status */
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 640px) {
+      .container {
+        width: 90%;
+        padding: 15px;
+      }
+      button {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Gambar di atas -->
+    <img class="header-image" src="bilik.jpg" alt="Bilik Aktiviti Pelajar" />
+
+    <h2>Pendaftaran Bilik Aktiviti Pelajar</h2>
+
+    <button onclick="window.open('tempahan.html', '_blank')">Tempah Sekarang</button>
+    <button onclick="window.open('rekod.html', '_blank')">Lihat Rekod Tempahan</button>
+
+    <div id="statusText"></div> 
+  </div>
+
+  <script>
+    function checkRoomStatus() {
+      const bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+      const isOccupied = bookings.some(b => b.status === 'Occupied');
+
+      const statusText = document.getElementById('statusText');
+      // Tak buat apa-apa. Anda boleh guna isOccupied di tempat lain jika perlu.
+    }
+
+    window.onload = checkRoomStatus;
+  </script>
+</body>
+</html>
